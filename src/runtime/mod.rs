@@ -2,6 +2,8 @@ use std::future::Future;
 use std::io;
 use std::mem::ManuallyDrop;
 use tokio::io::unix::AsyncFd;
+
+#[cfg(not(tokio_unstable))]
 use tokio::task::LocalSet;
 
 mod context;
@@ -13,6 +15,12 @@ thread_local! {
     pub(crate) static CONTEXT: RuntimeContext = RuntimeContext::new();
 }
 
+#[cfg(not(tokio_unstable))]
+type TokioRt = tokio::runtime::Runtime;
+
+#[cfg(tokio_unstable)]
+type TokioRt = tokio::runtime::LocalRuntime;
+
 /// The Runtime Executor
 ///
 /// This is the Runtime for `tokio-uring`.
@@ -23,8 +31,9 @@ thread_local! {
 /// [`Runtime`]: tokio::runtime::Runtime
 pub struct Runtime {
     /// Tokio runtime, always current-thread
-    tokio_rt: ManuallyDrop<tokio::runtime::Runtime>,
+    tokio_rt: ManuallyDrop<TokioRt>,
 
+    #[cfg(not(tokio_unstable))]
     /// LocalSet for !Send tasks
     local: ManuallyDrop<LocalSet>,
 
@@ -67,7 +76,8 @@ impl Runtime {
     ///
     /// This takes the tokio-uring [`Builder`](crate::Builder) as a parameter.
     pub fn new(b: &crate::Builder) -> io::Result<Runtime> {
-        let rt = tokio::runtime::Builder::new_current_thread()
+        let mut builder = tokio::runtime::Builder::new_current_thread();
+        builder
             .on_thread_park(|| {
                 CONTEXT.with(|x| {
                     let _ = x
@@ -76,16 +86,29 @@ impl Runtime {
                         .flush();
                 });
             })
-            .enable_all()
-            .build()?;
+            .enable_all();
+
+        #[cfg(tokio_unstable)]
+        let rt = builder.build_local(Default::default())?;
+
+        #[cfg(not(tokio_unstable))]
+        let rt = builder.build()?;
 
         let tokio_rt = ManuallyDrop::new(rt);
+
+        #[cfg(not(tokio_unstable))]
         let local = ManuallyDrop::new(LocalSet::new());
+
         let driver = driver::Handle::new(b)?;
 
+        #[cfg(not(tokio_unstable))]
         start_uring_wakes_task(&tokio_rt, &local, driver.clone());
 
+        #[cfg(tokio_unstable)]
+        start_uring_wakes_task(&tokio_rt, driver.clone());
+
         Ok(Runtime {
+            #[cfg(not(tokio_unstable))]
             local,
             tokio_rt,
             driver,
@@ -125,12 +148,19 @@ impl Runtime {
 
         tokio::pin!(future);
 
+        #[cfg(not(tokio_unstable))]
         let res = self
             .tokio_rt
             .block_on(self.local.run_until(std::future::poll_fn(|cx| {
                 // assert!(drive.as_mut().poll(cx).is_pending());
                 future.as_mut().poll(cx)
             })));
+
+        #[cfg(tokio_unstable)]
+        let res = self.tokio_rt.block_on(std::future::poll_fn(|cx| {
+            // assert!(drive.as_mut().poll(cx).is_pending());
+            future.as_mut().poll(cx)
+        }));
 
         res
     }
@@ -140,6 +170,7 @@ impl Drop for Runtime {
     fn drop(&mut self) {
         // drop tasks in correct order
         unsafe {
+            #[cfg(not(tokio_unstable))]
             ManuallyDrop::drop(&mut self.local);
             ManuallyDrop::drop(&mut self.tokio_rt);
         }
@@ -147,14 +178,20 @@ impl Drop for Runtime {
 }
 
 fn start_uring_wakes_task(
-    tokio_rt: &tokio::runtime::Runtime,
-    local: &LocalSet,
+    tokio_rt: &TokioRt,
+    #[cfg(not(tokio_unstable))] local: &LocalSet,
     driver: driver::Handle,
 ) {
     let _guard = tokio_rt.enter();
     let async_driver_handle = AsyncFd::new(driver).unwrap();
 
-    local.spawn_local(drive_uring_wakes(async_driver_handle));
+    let task = drive_uring_wakes(async_driver_handle);
+
+    #[cfg(not(tokio_unstable))]
+    local.spawn_local(task);
+
+    #[cfg(tokio_unstable)]
+    tokio::task::spawn_local(task);
 }
 
 async fn drive_uring_wakes(driver: AsyncFd<driver::Handle>) {
