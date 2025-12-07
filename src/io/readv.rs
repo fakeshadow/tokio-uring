@@ -1,9 +1,9 @@
-use crate::buf::BoundedBufMut;
 use crate::BufResult;
+use crate::buf::BoundedBufMut;
 
 use crate::io::SharedFd;
-use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use crate::runtime::CONTEXT;
+use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use libc::iovec;
 use std::io;
 

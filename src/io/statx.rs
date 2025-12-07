@@ -1,11 +1,11 @@
 use std::ffi::CString;
-use std::{ffi::CStr, io};
+use std::io;
 
 use io_uring::{opcode, types};
 
 use crate::runtime::{
-    driver::op::{Completable, CqeResult, Op},
     CONTEXT,
+    driver::op::{Completable, CqeResult, Op},
 };
 
 use super::SharedFd;
@@ -38,8 +38,7 @@ impl Op<Statx> {
             None => {
                 // If there is no path, add appropriate bit to flags.
                 flags |= libc::AT_EMPTY_PATH;
-                CStr::from_bytes_with_nul(b"\0").unwrap().into() // TODO Is there a constant CString we
-                                                                 // could use here.
+                c"".into()
             }
         };
         CONTEXT.with(|x| {

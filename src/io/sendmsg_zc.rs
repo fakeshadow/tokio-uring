@@ -1,7 +1,7 @@
 use crate::buf::BoundedBuf;
 use crate::io::SharedFd;
-use crate::runtime::driver::op::{Completable, CqeResult, MultiCQEFuture, Op, Updateable};
 use crate::runtime::CONTEXT;
+use crate::runtime::driver::op::{Completable, CqeResult, MultiCQEFuture, Op, Updateable};
 use socket2::SockAddr;
 use std::io;
 use std::io::IoSlice;

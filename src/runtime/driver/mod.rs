@@ -1,7 +1,7 @@
 use crate::buf::fixed::FixedBuffers;
 use crate::runtime::driver::op::{Completable, Lifecycle, MultiCQEFuture, Op, Updateable};
 use io_uring::opcode::AsyncCancel;
-use io_uring::{cqueue, squeue, IoUring};
+use io_uring::{IoUring, cqueue, squeue};
 use slab::Slab;
 use std::cell::RefCell;
 use std::os::unix::io::{AsRawFd, RawFd};
@@ -111,12 +111,12 @@ impl Driver {
         &mut self,
         buffers: Rc<RefCell<dyn FixedBuffers>>,
     ) -> io::Result<()> {
-        if let Some(currently_registered) = &self.fixed_buffers {
-            if Rc::ptr_eq(&buffers, currently_registered) {
-                self.uring.submitter().unregister_buffers()?;
-                self.fixed_buffers = None;
-                return Ok(());
-            }
+        if let Some(currently_registered) = &self.fixed_buffers
+            && Rc::ptr_eq(&buffers, currently_registered)
+        {
+            self.uring.submitter().unregister_buffers()?;
+            self.fixed_buffers = None;
+            return Ok(());
         }
         Err(io::Error::other(
             "fixed buffers are not currently registered",
@@ -495,10 +495,11 @@ impl Ops {
 
 impl Drop for Ops {
     fn drop(&mut self) {
-        assert!(self
-            .lifecycle
-            .iter()
-            .all(|(_, cycle)| matches!(cycle, Lifecycle::Completed(_))))
+        assert!(
+            self.lifecycle
+                .iter()
+                .all(|(_, cycle)| matches!(cycle, Lifecycle::Completed(_)))
+        )
     }
 }
 
@@ -506,8 +507,8 @@ impl Drop for Ops {
 mod test {
     use std::rc::Rc;
 
-    use crate::runtime::driver::op::{Completable, CqeResult, Op};
     use crate::runtime::CONTEXT;
+    use crate::runtime::driver::op::{Completable, CqeResult, Op};
     use tokio_test::{assert_pending, assert_ready, task};
 
     use super::*;

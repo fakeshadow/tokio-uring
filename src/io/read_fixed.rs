@@ -1,8 +1,8 @@
-use crate::buf::fixed::FixedBuf;
+use crate::BufResult;
 use crate::buf::BoundedBufMut;
+use crate::buf::fixed::FixedBuf;
 use crate::io::SharedFd;
 use crate::runtime::driver::op::{self, Completable, Op};
-use crate::BufResult;
 
 use crate::runtime::CONTEXT;
 use std::io;

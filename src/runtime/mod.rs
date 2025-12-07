@@ -2,8 +2,6 @@ use std::future::Future;
 use std::io;
 use std::mem::ManuallyDrop;
 use tokio::io::unix::AsyncFd;
-
-#[cfg(not(tokio_unstable))]
 use tokio::task::LocalSet;
 
 mod context;
@@ -96,20 +94,15 @@ impl Runtime {
 
         let tokio_rt = ManuallyDrop::new(rt);
 
-        #[cfg(not(tokio_unstable))]
-        let local = ManuallyDrop::new(LocalSet::new());
+        let _local = ManuallyDrop::new(LocalSet::new());
 
         let driver = driver::Handle::new(b)?;
 
-        #[cfg(not(tokio_unstable))]
-        start_uring_wakes_task(&tokio_rt, &local, driver.clone());
-
-        #[cfg(tokio_unstable)]
-        start_uring_wakes_task(&tokio_rt, driver.clone());
+        start_uring_wakes_task(&tokio_rt, &_local, driver.clone());
 
         Ok(Runtime {
             #[cfg(not(tokio_unstable))]
-            local,
+            local: _local,
             tokio_rt,
             driver,
         })
@@ -148,21 +141,15 @@ impl Runtime {
 
         tokio::pin!(future);
 
-        #[cfg(not(tokio_unstable))]
-        let res = self
-            .tokio_rt
-            .block_on(self.local.run_until(std::future::poll_fn(|cx| {
-                // assert!(drive.as_mut().poll(cx).is_pending());
-                future.as_mut().poll(cx)
-            })));
-
-        #[cfg(tokio_unstable)]
-        let res = self.tokio_rt.block_on(std::future::poll_fn(|cx| {
+        let task = std::future::poll_fn(|cx| {
             // assert!(drive.as_mut().poll(cx).is_pending());
             future.as_mut().poll(cx)
-        }));
+        });
 
-        res
+        #[cfg(not(tokio_unstable))]
+        let task = self.local.run_until(task);
+
+        self.tokio_rt.block_on(task)
     }
 }
 
@@ -177,18 +164,14 @@ impl Drop for Runtime {
     }
 }
 
-fn start_uring_wakes_task(
-    tokio_rt: &TokioRt,
-    #[cfg(not(tokio_unstable))] local: &LocalSet,
-    driver: driver::Handle,
-) {
+fn start_uring_wakes_task(tokio_rt: &TokioRt, _local: &LocalSet, driver: driver::Handle) {
     let _guard = tokio_rt.enter();
     let async_driver_handle = AsyncFd::new(driver).unwrap();
 
     let task = drive_uring_wakes(async_driver_handle);
 
     #[cfg(not(tokio_unstable))]
-    local.spawn_local(task);
+    _local.spawn_local(task);
 
     #[cfg(tokio_unstable)]
     tokio::task::spawn_local(task);

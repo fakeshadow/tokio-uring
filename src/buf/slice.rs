@@ -216,6 +216,11 @@ impl<T: IoBufMut> BoundedBufMut for Slice<T> {
     }
 
     unsafe fn set_init(&mut self, pos: usize) {
-        self.buf.set_init(self.begin + pos);
+        // # Safety
+        //
+        // implementor of T must make sure it's soundness
+        unsafe {
+            self.buf.set_init(self.begin + pos);
+        }
     }
 }

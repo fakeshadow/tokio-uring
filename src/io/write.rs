@@ -1,4 +1,4 @@
-use crate::{buf::BoundedBuf, io::SharedFd, BufResult, OneshotOutputTransform, UnsubmittedOneshot};
+use crate::{BufResult, OneshotOutputTransform, UnsubmittedOneshot, buf::BoundedBuf, io::SharedFd};
 use io_uring::cqueue::Entry;
 use std::io;
 use std::marker::PhantomData;

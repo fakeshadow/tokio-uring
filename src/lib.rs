@@ -80,9 +80,9 @@ pub mod fs;
 pub mod net;
 
 pub use io::write::*;
+pub use runtime::Runtime;
 pub use runtime::driver::op::{InFlightOneshot, OneshotOutputTransform, UnsubmittedOneshot};
 pub use runtime::spawn;
-pub use runtime::Runtime;
 
 use crate::runtime::driver::op::Op;
 use std::future::Future;

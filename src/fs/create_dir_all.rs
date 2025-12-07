@@ -1,6 +1,7 @@
-use futures_util::future::LocalBoxFuture;
 use std::io;
 use std::path::Path;
+
+type LocalBoxFuture<'a, T> = std::pin::Pin<Box<dyn std::future::Future<Output = T> + 'a>>;
 
 /// Recursively create a directory and all of its parent components if they are missing.
 ///

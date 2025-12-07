@@ -5,8 +5,8 @@ use io_uring::{opcode, types};
 use crate::{
     io::SharedFd,
     runtime::{
-        driver::op::{Completable, CqeResult, Op},
         CONTEXT,
+        driver::op::{Completable, CqeResult, Op},
     },
 };
 

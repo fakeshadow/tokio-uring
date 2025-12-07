@@ -1,5 +1,5 @@
-use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use crate::runtime::CONTEXT;
+use crate::runtime::driver::op::{Completable, CqeResult, Op};
 
 use super::util::cstr;
 

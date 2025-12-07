@@ -1,8 +1,8 @@
 use crate::fs::{File, OpenOptions};
 use crate::io::SharedFd;
 
-use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use crate::runtime::CONTEXT;
+use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use std::ffi::CString;
 use std::io;
 use std::path::Path;

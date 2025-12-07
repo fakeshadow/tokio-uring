@@ -1,8 +1,8 @@
 use crate::{
+    UnsubmittedWrite,
     buf::fixed::FixedBuf,
     buf::{BoundedBuf, BoundedBufMut},
     io::{SharedFd, Socket},
-    UnsubmittedWrite,
 };
 use socket2::SockAddr;
 use std::{

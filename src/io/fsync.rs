@@ -1,8 +1,8 @@
 use std::io;
 
 use crate::io::SharedFd;
-use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use crate::runtime::CONTEXT;
+use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use io_uring::{opcode, types};
 
 pub(crate) struct Fsync {

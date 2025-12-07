@@ -1,6 +1,6 @@
-use crate::runtime::driver::op::{Completable, CqeResult, MultiCQEFuture, Op, Updateable};
 use crate::runtime::CONTEXT;
-use crate::{buf::BoundedBuf, io::SharedFd, BufResult};
+use crate::runtime::driver::op::{Completable, CqeResult, MultiCQEFuture, Op, Updateable};
+use crate::{BufResult, buf::BoundedBuf, io::SharedFd};
 use std::io;
 
 pub(crate) struct SendZc<T> {

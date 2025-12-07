@@ -6,8 +6,8 @@ use std::io::Write;
 use tokio_test::assert_ok;
 use tokio_uring::fs;
 
-use tempfile::tempdir;
 use tempfile::NamedTempFile;
+use tempfile::tempdir;
 
 const TEST_PAYLOAD: &[u8] = b"I am data in the source file";
 

@@ -4,7 +4,7 @@
 use std::{env, iter, net::SocketAddr};
 
 use tokio_uring::{
-    buf::{fixed::FixedBufRegistry, BoundedBuf, IoBufMut},
+    buf::{BoundedBuf, IoBufMut, fixed::FixedBufRegistry},
     net::{TcpListener, TcpStream},
 }; // BoundedBuf for slice method
 

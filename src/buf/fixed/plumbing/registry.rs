@@ -1,7 +1,7 @@
-use crate::buf::fixed::{handle::CheckedOutBuf, FixedBuffers};
 use crate::buf::IoBufMut;
+use crate::buf::fixed::{FixedBuffers, handle::CheckedOutBuf};
 
-use libc::{iovec, UIO_MAXIOV};
+use libc::{UIO_MAXIOV, iovec};
 use std::cmp;
 use std::mem;
 use std::ptr;

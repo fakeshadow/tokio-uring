@@ -186,6 +186,9 @@ impl<T: IoBufMut> BoundedBufMut for T {
     }
 
     unsafe fn set_init(&mut self, pos: usize) {
-        IoBufMut::set_init(self, pos)
+        // # Safety
+        //
+        // implementor of T must make sure it's soundness
+        unsafe { IoBufMut::set_init(self, pos) }
     }
 }

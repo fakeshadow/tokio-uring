@@ -1,5 +1,5 @@
 use super::File;
-use crate::io::{cstr, SharedFd};
+use crate::io::{SharedFd, cstr};
 use crate::runtime::driver::op::Op;
 use std::{ffi::CString, io, path::Path};
 

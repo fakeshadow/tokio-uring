@@ -5,10 +5,10 @@ use std::{
 };
 
 use crate::{
+    UnsubmittedWrite,
     buf::fixed::FixedBuf,
     buf::{BoundedBuf, BoundedBufMut},
     io::{SharedFd, Socket},
-    UnsubmittedWrite,
 };
 
 /// A TCP stream between a local and a remote socket.

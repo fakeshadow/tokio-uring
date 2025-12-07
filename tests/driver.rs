@@ -35,7 +35,12 @@ fn complete_ops_on_drop() {
         }
 
         unsafe fn set_init(&mut self, pos: usize) {
-            self.data.set_init(pos);
+            // # Safety
+            //
+            // Vec<u8> must implement trait correctly
+            unsafe {
+                self.data.set_init(pos);
+            }
         }
     }
 

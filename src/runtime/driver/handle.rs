@@ -21,8 +21,8 @@ use std::rc::{Rc, Weak};
 use std::task::{Context, Poll};
 
 use crate::buf::fixed::FixedBuffers;
-use crate::runtime::driver::op::{Completable, MultiCQEFuture, Op, Updateable};
 use crate::runtime::driver::Driver;
+use crate::runtime::driver::op::{Completable, MultiCQEFuture, Op, Updateable};
 
 #[derive(Clone)]
 pub(crate) struct Handle {

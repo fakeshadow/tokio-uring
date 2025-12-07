@@ -1,10 +1,10 @@
 use crate::io::write::UnsubmittedWrite;
 use crate::runtime::driver::op::Op;
 use crate::{
+    UnsubmittedOneshot,
     buf::fixed::FixedBuf,
     buf::{BoundedBuf, BoundedBufMut, IoBuf, Slice},
     io::SharedFd,
-    UnsubmittedOneshot,
 };
 use std::{
     io,

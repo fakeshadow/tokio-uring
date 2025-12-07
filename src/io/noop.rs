@@ -1,5 +1,5 @@
-use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use crate::runtime::CONTEXT;
+use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use std::io;
 
 /// No operation. Just posts a completion event, nothing else.

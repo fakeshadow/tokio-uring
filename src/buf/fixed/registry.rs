@@ -1,5 +1,5 @@
-use super::plumbing;
 use super::FixedBuf;
+use super::plumbing;
 
 use crate::buf::IoBufMut;
 use crate::runtime::CONTEXT;

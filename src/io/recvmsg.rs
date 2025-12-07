@@ -1,6 +1,6 @@
-use crate::runtime::driver::op::{Completable, CqeResult, Op};
 use crate::runtime::CONTEXT;
-use crate::{buf::BoundedBufMut, io::SharedFd, BufResult};
+use crate::runtime::driver::op::{Completable, CqeResult, Op};
+use crate::{BufResult, buf::BoundedBufMut, io::SharedFd};
 use socket2::SockAddr;
 use std::{
     io::IoSliceMut,

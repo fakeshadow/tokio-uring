@@ -1,6 +1,6 @@
+use crate::runtime::CONTEXT;
 use crate::runtime::driver::op;
 use crate::runtime::driver::op::{Completable, Op};
-use crate::runtime::CONTEXT;
 use std::io;
 use std::os::unix::io::RawFd;
 
