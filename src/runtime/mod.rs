@@ -1,6 +1,5 @@
 use std::future::Future;
 use std::io;
-use std::mem::ManuallyDrop;
 use tokio::io::unix::AsyncFd;
 use tokio::task::LocalSet;
 
@@ -28,12 +27,13 @@ type TokioRt = tokio::runtime::LocalRuntime;
 ///
 /// [`Runtime`]: tokio::runtime::Runtime
 pub struct Runtime {
-    /// Tokio runtime, always current-thread
-    tokio_rt: ManuallyDrop<TokioRt>,
-
+    // field drop order matters. LocalSet must be dropped before TokioRT
     #[cfg(not(tokio_unstable))]
     /// LocalSet for !Send tasks
-    local: ManuallyDrop<LocalSet>,
+    local: LocalSet,
+
+    /// Tokio runtime, always current-thread
+    tokio_rt: TokioRt,
 
     /// Strong reference to the driver.
     driver: driver::Handle,
@@ -87,12 +87,10 @@ impl Runtime {
             .enable_all();
 
         #[cfg(tokio_unstable)]
-        let rt = builder.build_local(Default::default())?;
+        let tokio_rt = builder.build_local(Default::default())?;
 
         #[cfg(not(tokio_unstable))]
-        let rt = builder.build()?;
-
-        let tokio_rt = ManuallyDrop::new(rt);
+        let tokio_rt = builder.build()?;
 
         let _local = LocalSet::new();
 
@@ -102,7 +100,7 @@ impl Runtime {
 
         Ok(Runtime {
             #[cfg(not(tokio_unstable))]
-            local: ManuallyDrop::new(_local),
+            local: _local,
             tokio_rt,
             driver,
         })
@@ -150,17 +148,6 @@ impl Runtime {
         let task = self.local.run_until(task);
 
         self.tokio_rt.block_on(task)
-    }
-}
-
-impl Drop for Runtime {
-    fn drop(&mut self) {
-        // drop tasks in correct order
-        unsafe {
-            #[cfg(not(tokio_unstable))]
-            ManuallyDrop::drop(&mut self.local);
-            ManuallyDrop::drop(&mut self.tokio_rt);
-        }
     }
 }
 
