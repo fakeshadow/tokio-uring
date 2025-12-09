@@ -94,7 +94,7 @@ impl Runtime {
 
         let tokio_rt = ManuallyDrop::new(rt);
 
-        let _local = ManuallyDrop::new(LocalSet::new());
+        let _local = LocalSet::new();
 
         let driver = driver::Handle::new(b)?;
 
@@ -102,7 +102,7 @@ impl Runtime {
 
         Ok(Runtime {
             #[cfg(not(tokio_unstable))]
-            local: _local,
+            local: ManuallyDrop::new(_local),
             tokio_rt,
             driver,
         })
