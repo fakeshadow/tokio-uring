@@ -243,6 +243,23 @@ impl TcpStream {
     pub fn set_nodelay(&self, nodelay: bool) -> io::Result<()> {
         self.inner.set_nodelay(nodelay)
     }
+
+    /// Split the stream into a pair of reader and writer where concurrent I/O operation can be performed
+    pub fn split(self) -> (TcpStreamRead, TcpStreamWrite) {
+        (
+            TcpStreamRead(Self {
+                inner: self.inner.clone(),
+            }),
+            TcpStreamWrite(self),
+        )
+    }
+
+    /// Try to unsplit and join a pair of reader and write back to one stream
+    ///
+    /// Return Some when the pair belong to the same stream
+    pub fn unsplit(read: TcpStreamRead, write: TcpStreamWrite) -> Option<Self> {
+        (read.0.as_raw_fd() == write.0.as_raw_fd()).then_some(read.0)
+    }
 }
 
 impl FromRawFd for TcpStream {
@@ -254,5 +271,25 @@ impl FromRawFd for TcpStream {
 impl AsRawFd for TcpStream {
     fn as_raw_fd(&self) -> RawFd {
         self.inner.as_raw_fd()
+    }
+}
+
+pub struct TcpStreamRead(TcpStream);
+
+impl TcpStreamRead {
+    /// See [`TcpStream::read`]
+    #[inline]
+    pub async fn read<T: BoundedBufMut>(&self, buf: T) -> crate::BufResult<usize, T> {
+        self.0.read(buf).await
+    }
+}
+
+pub struct TcpStreamWrite(TcpStream);
+
+impl TcpStreamWrite {
+    /// See [`TcpStream::write_all`]    
+    #[inline]
+    pub async fn write_all<T: BoundedBuf>(&self, buf: T) -> crate::BufResult<(), T> {
+        self.0.write_all(buf).await
     }
 }
