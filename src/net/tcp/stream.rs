@@ -274,6 +274,7 @@ impl AsRawFd for TcpStream {
     }
 }
 
+/// read half of a [`TcpStream`]
 pub struct TcpStreamRead(TcpStream);
 
 impl TcpStreamRead {
@@ -284,6 +285,7 @@ impl TcpStreamRead {
     }
 }
 
+/// write half of a [`TcpStream`]
 pub struct TcpStreamWrite(TcpStream);
 
 impl TcpStreamWrite {

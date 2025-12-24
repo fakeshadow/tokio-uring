@@ -224,6 +224,7 @@ impl AsRawFd for UnixStream {
     }
 }
 
+/// read half of a [`UnixStream`]
 pub struct UnixStreamRead(UnixStream);
 
 impl UnixStreamRead {
@@ -234,6 +235,7 @@ impl UnixStreamRead {
     }
 }
 
+/// write half of a [`UnixStream`]
 pub struct UnixStreamWrite(UnixStream);
 
 impl UnixStreamWrite {
