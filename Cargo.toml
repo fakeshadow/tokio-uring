@@ -36,8 +36,8 @@ tokio-test = "0.4.2"
 iai = "0.1.1"
 criterion = "0.8.0"
 # we use joinset in our tests
-tokio = "1.21.2"
-nix = "0.26"
+tokio = "1.48"
+nix = { version = "0.30", features = ["resource"] }
 
 [package.metadata.docs.rs]
 all-features = true

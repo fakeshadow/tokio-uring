@@ -84,8 +84,12 @@ pub(crate) async fn writev_at_all<T: BoundedBuf>(
                 // safety: n was found to be less than iov_len, so adding to base and keeping
                 // iov_len updated by decrementing maintains the invariant of the iovec
                 // representing how much of the buffer remains to be written to.
-                iovec.iov_base = unsafe { (iovec.iov_base as *const u8).add(n) } as _;
-                iovec.iov_len -= n;
+
+                #[allow(unused_assignments)]
+                {
+                    iovec.iov_base = unsafe { (iovec.iov_base as *const u8).add(n) } as _;
+                    iovec.iov_len -= n;
+                }
                 n = 0;
             }
         }
