@@ -239,6 +239,12 @@ impl UnixStreamRead {
 pub struct UnixStreamWrite(UnixStream);
 
 impl UnixStreamWrite {
+    /// See [`UnixStream::write`]
+    #[inline]
+    pub fn write<T: BoundedBuf>(&self, buf: T) -> UnsubmittedWrite<T> {
+        self.0.write(buf)
+    }
+
     /// See [`UnixStream::write_all`]    
     #[inline]
     pub async fn write_all<T: BoundedBuf>(&self, buf: T) -> crate::BufResult<(), T> {
