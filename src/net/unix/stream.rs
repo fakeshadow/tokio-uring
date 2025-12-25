@@ -39,6 +39,7 @@ use std::{
 /// [`connect`]: UnixStream::connect
 /// [`accepting`]: crate::net::UnixListener::accept
 /// [`listener`]: crate::net::UnixListener
+#[derive(Clone)]
 pub struct UnixStream {
     pub(super) inner: Socket,
 }

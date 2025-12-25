@@ -39,6 +39,7 @@ use crate::{
 /// [`connect`]: TcpStream::connect
 /// [`accepting`]: crate::net::TcpListener::accept
 /// [`listener`]: crate::net::TcpListener
+#[derive(Clone)]
 pub struct TcpStream {
     pub(super) inner: Socket,
 }
